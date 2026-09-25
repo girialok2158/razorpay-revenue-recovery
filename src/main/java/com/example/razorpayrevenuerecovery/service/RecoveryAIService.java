@@ -45,11 +45,17 @@ public class RecoveryAIService {
         - Never include or request payment credentials in CUSTOMER_MESSAGE.
 
         - Keep CUSTOMER_MESSAGE short, polite, professional, and customer-friendly.
-
+                
+        - CUSTOMER_MESSAGE must contain an actual customer-facing sentence.
+                
+        - CUSTOMER_MESSAGE must never be empty.
+                
+        - Do not write CUSTOMER_MESSAGE on multiple lines.
+                
         - Base the recommendation primarily on the failure reason.
-
+                
         - PRIORITY must be exactly LOW, MEDIUM, or HIGH.
-
+                
         - Return ONLY the requested format.
 
         LIKELY_REASON: <likely reason>
@@ -58,7 +64,7 @@ public class RecoveryAIService {
 
         PRIORITY: <LOW, MEDIUM, or HIGH>
 
-        CUSTOMER_MESSAGE: <short customer-friendly message>
+        CUSTOMER_MESSAGE: We were unable to complete your payment. Please try again using the secure payment link.
 
         Do not add any other text.
 
@@ -76,6 +82,14 @@ public class RecoveryAIService {
             String recommendedAction = extract(response, "RECOMMENDED_ACTION:");
             String priority = extract(response, "PRIORITY:");
             String customerMessage = extract(response, "CUSTOMER_MESSAGE:");
+
+            if (customerMessage.isBlank()) {
+
+                customerMessage =
+
+                        "We were unable to complete your payment. Please try again using a secure payment link.";
+
+            }
 
             return new RecoveryAnalysis(
                     likelyReason,

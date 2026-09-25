@@ -2,9 +2,16 @@ import { useEffect, useState } from "react";
 import "./App.css";
 
 function App() {
+    const formatCurrency = (amount) =>
+      new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        minimumFractionDigits: 2,
+      }).format(amount);
   const [recoveries, setRecoveries] = useState([]);
   const [analysis, setAnalysis] = useState(null);
-  const [selectedRecovery, setSelectedRecovery] = useState(null);  const [loading, setLoading] = useState(false);
+  const [selectedRecovery, setSelectedRecovery] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [lastUpdated, setLastUpdated] = useState(null);
   const [filter, setFilter] = useState("ALL");
@@ -128,63 +135,200 @@ function App() {
         totalRecoveries > 0
           ? (recoveredPayments / totalRecoveries) * 100
           : 0;
+      const pendingRevenue =
+        recoveries
+          .filter((recovery) => recovery.status === "PENDING")
+          .reduce((sum, recovery) => sum + recovery.amount, 0) / 100;
+
+      const averageRecoveredAmount =
+        recoveredPayments > 0
+          ? recoveredRevenue / recoveredPayments
+          : 0;
 
 
   return (
     <div className="app">
-      <header>
-        <h1>Razorpay Revenue Recovery</h1>
-        <p>AI-powered payment recovery dashboard</p>
-        {lastUpdated && (
+      <header className="dashboard-header">
 
-          <p className="last-updated">
+        <div className="header-content">
 
-            Last updated: {lastUpdated.toLocaleTimeString()}
+          <div>
 
-          </p>
+            <div className="header-title-row">
 
-        )}
+              <h1>Revenue Recovery</h1>
+
+              <span className="system-status">
+
+                <span className="status-dot"></span>
+
+                System Online
+
+              </span>
+
+            </div>
+
+            <p className="header-subtitle">
+
+              AI-powered payment recovery dashboard
+
+            </p>
+
+            <p className="header-description">
+
+              Monitor failed payments, recover revenue, and use AI
+
+              to determine the next best recovery action.
+
+            </p>
+
+          </div>
+
+          {lastUpdated && (
+
+            <div className="last-updated">
+
+              <span>Last updated</span>
+
+              <strong>{lastUpdated.toLocaleTimeString()}</strong>
+
+            </div>
+
+          )}
+
+        </div>
+
       </header>
 
       <main>
           <section className="stats-grid">
             <div className="stat-card">
-              <h3>Total Failed Payments</h3>
-              <p>{totalRecoveries}</p>
-            </div>
-
-            <div className="stat-card">
-              <h3>Pending Recoveries</h3>
-              <p>{pendingRecoveries}</p>
-            </div>
-
-            <div className="stat-card">
-              <h3>Recovered Payments</h3>
-              <p>{recoveredPayments}</p>
-            </div>
-
-            <div className="stat-card">
-              <h3>Revenue Recovered</h3>
-              <p>₹{recoveredRevenue.toFixed(2)}</p>
-            </div>
-            <div className="stat-card">
-
-              <h3>Recovery Rate</h3>
-
-              <p>{recoveryRate.toFixed(0)}%</p>
-
-              <div className="progress-bar">
-
-                <div
-
-                  className="progress-fill"
-
-                  style={{ width: `${recoveryRate}%` }}
-
-                ></div>
-
+              <div className="stat-card-header">
+                <span className="stat-label">Total Failed</span>
+                <span className="stat-icon">↘</span>
               </div>
 
+              <p className="stat-value">{totalRecoveries}</p>
+              <span className="stat-description">payment cases</span>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-card-header">
+                <span className="stat-label">Pending</span>
+                <span className="stat-icon">◷</span>
+              </div>
+
+              <p className="stat-value">{pendingRecoveries}</p>
+              <span className="stat-description">needs attention</span>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-card-header">
+                <span className="stat-label">Recovered</span>
+                <span className="stat-icon">✓</span>
+              </div>
+
+              <p className="stat-value">{recoveredPayments}</p>
+              <span className="stat-description">successful recoveries</span>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-card-header">
+                <span className="stat-label">Revenue Recovered</span>
+                <span className="stat-icon">₹</span>
+              </div>
+
+              <p className="stat-value">
+                {formatCurrency(recoveredRevenue)}
+              </p>
+
+              <span className="stat-description">recovered revenue</span>
+            </div>
+
+            <div className="stat-card recovery-rate-card">
+              <div className="stat-card-header">
+                <span className="stat-label">Recovery Rate</span>
+                <span className="stat-icon">%</span>
+              </div>
+
+              <p className="stat-value">{recoveryRate.toFixed(0)}%</p>
+
+              <div className="progress-bar">
+                <div
+                  className="progress-fill"
+                  style={{ width: `${recoveryRate}%` }}
+                ></div>
+              </div>
+
+              <span className="stat-description">
+                of failed payments recovered
+              </span>
+            </div>
+          </section>
+          <section className="insights-card">
+            <div className="insights-header">
+              <div>
+                <h2>Recovery Insights</h2>
+                <p>Overview of your current payment recovery performance</p>
+              </div>
+            </div>
+
+            <div className="insights-grid">
+             <div className="insight-item">
+
+               <span className="insight-label">Pending Cases</span>
+
+               <strong>{pendingRecoveries}</strong>
+
+               <span className="insight-description">
+
+                 payment cases needing attention
+
+               </span>
+
+             </div>
+
+             <div className="insight-item">
+
+               <span className="insight-label">Pending Revenue</span>
+
+               <strong>{formatCurrency(pendingRevenue)}</strong>
+
+               <span className="insight-description">
+
+                 total value still pending
+
+               </span>
+
+             </div>
+
+             <div className="insight-item">
+
+               <span className="insight-label">Recovered Cases</span>
+
+               <strong>{recoveredPayments}</strong>
+
+               <span className="insight-description">
+
+                 successfully recovered payments
+
+               </span>
+
+             </div>
+
+             <div className="insight-item">
+
+               <span className="insight-label">Avg. Recovered Payment</span>
+
+               <strong>{formatCurrency(averageRecoveredAmount)}</strong>
+
+               <span className="insight-description">
+
+                 average recovered amount
+
+               </span>
+
+             </div>
             </div>
           </section>
 
@@ -253,16 +397,16 @@ function App() {
 
                     ) : (
 
-                  filteredRecoveries.map((recovery) => (
+                  filteredRecoveries.map((recovery, index) => (
                     <tr key={recovery.id}>
-                      <td>{recovery.id}</td>
+                      <td>{index + 1}</td>
 
                       <td>{recovery.paymentId}</td>
 
                       <td>{recovery.customerEmail}</td>
 
                       <td>
-                        ₹{(recovery.amount / 100).toFixed(2)}
+                        {formatCurrency(recovery.amount / 100)}
                       </td>
 
                       <td>
@@ -311,71 +455,108 @@ function App() {
         </section>
 
         {loading && (
-          <section className="card">
+          <section className="card ai-loading-card">
+            <div className="ai-loading-icon">✦</div>
+
             <h2>AI Recovery Analysis</h2>
 
-            <p className="loading-message">
-              Analyzing payment recovery case...
+            <p className="loading-title">
+              Analyzing payment recovery case
             </p>
+
+            <p className="loading-description">
+              AI is evaluating the failure reason and generating
+              a safe recovery recommendation.
+            </p>
+
+            <div className="loading-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
           </section>
         )}
 
         {analysis && !loading && (
           <section className="card analysis">
-            <h2>AI Recovery Analysis</h2>
+            <div className="analysis-header">
+              <div>
+                <div className="analysis-title-row">
+                  <span className="ai-icon">✦</span>
+                  <h2>AI Recovery Analysis</h2>
+                </div>
+
+                <p className="analysis-subtitle">
+                  AI-generated recovery recommendation for this payment
+                </p>
+              </div>
+
+              <span
+                className={`priority-badge priority-${(
+                  analysis.priority || "medium"
+                ).toLowerCase()}`}
+              >
+                {analysis.priority || "Not specified"} Priority
+              </span>
+            </div>
 
             {selectedRecovery && (
               <div className="analysis-summary">
-                <p>
-                  <strong>Payment:</strong> {selectedRecovery.paymentId}
-                </p>
-                <p>
-                  <strong>Customer:</strong> {selectedRecovery.customerEmail}
-                </p>
-                <p>
-                  <strong>Amount:</strong> ₹
-                  {(selectedRecovery.amount / 100).toFixed(2)}
-                </p>
+                <div className="summary-item">
+                  <span>Payment</span>
+                  <strong>{selectedRecovery.paymentId}</strong>
+                </div>
+
+                <div className="summary-item">
+                  <span>Customer</span>
+                  <strong>{selectedRecovery.customerEmail}</strong>
+                </div>
+
+                <div className="summary-item">
+                  <span>Amount</span>
+                  <strong>
+                   {formatCurrency(selectedRecovery.amount / 100)}
+                  </strong>
+                </div>
+
+                <div className="summary-item">
+                  <span>Status</span>
+                  <strong>
+                    {selectedRecovery.status}
+                  </strong>
+                </div>
               </div>
             )}
 
-            <div className="analysis-item">
-              <h3>Likely Reason</h3>
-              <p>{analysis.likelyReason}</p>
+            <div className="analysis-grid">
+              <div className="analysis-box">
+                <span className="analysis-label">Likely Reason</span>
+                <p>{analysis.likelyReason}</p>
+              </div>
+
+              <div className="analysis-box">
+                <span className="analysis-label">Recommended Action</span>
+                <p>{analysis.recommendedAction}</p>
+              </div>
             </div>
 
-            <div className="analysis-item">
-              <h3>Recommended Action</h3>
-              <p>{analysis.recommendedAction}</p>
-            </div>
-
-            <div className="analysis-item">
-
-              <h3>Priority</h3>
+            <div className="customer-message">
+              <div className="customer-message-header">
+                <span className="analysis-label">Customer Message</span>
+                <span className="message-badge">Ready to send</span>
+              </div>
 
               <p>
-
-                <span
-
-                  className={`priority-badge priority-${(
-
-                    analysis.priority || "medium"
-
-                  ).toLowerCase()}`}
-
-                >
-
-                  {analysis.priority || "Not specified"}
-
-                </span>
-
+                "{analysis.customerMessage}"
               </p>
-
             </div>
 
-            <div className="analysis-item">
-              <h3>Customer Message</h3>
-              <p>{analysis.customerMessage}</p>
+            <div className="ai-safety-note">
+              <span>🔒</span>
+              <span>
+                AI recommendations are designed to avoid requesting
+                sensitive payment credentials.
+              </span>
             </div>
           </section>
         )}

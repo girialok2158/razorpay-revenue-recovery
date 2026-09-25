@@ -32,3 +32,16 @@ build/
 ### VS Code ###
 .vscode/
 frontend/dist/
+
+
+# Local database files
+/data/*.mv.db
+/data/*.trace.db
+
+# Frontend dependencies and build output
+/frontend/node_modules/
+/frontend/dist/
+
+# macOS
+.DS_Store
+
